@@ -1,0 +1,40 @@
+server:
+  port: 8061
+
+#mybatis-plus映射mapper文件
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.shardingSphere2.entity
+
+sharding:
+  jdbc:
+    datasource:
+      names: master1,salve0 #主从数据源
+      master1:
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+          driver-class-name: com.mysql.cj.jdbc.Driver #数据库新的驱动，下面连接url一定要加区时
+        jdbc-url: jdbc:mysql://localhost:3306/master1?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+        username: root
+        password: 123456
+      salve0:
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/salve0?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+        username: root
+        password: 123456
+    config:  #读写分离配置
+      masterslave:
+        master-data-source-name: master1 #主数据库配置
+        slave-data-source-names: salve0 #从数据库配置
+        load-balance-algorithm-type: round_robin # 提供轮询与随机(random)，这里选择用轮询，
+        name: ms
+      props:
+        sql:
+          show: true #打印sql日志
+spring:
+  main:
+    allow-bean-definition-overriding: true #设置为true，表示后发现的bean会覆盖之前相同名称的bean。
+  application:
+    name: sharing-sphere-server2
